@@ -9,9 +9,9 @@ import torch.optim as optim
 import torch.nn.functional as F
 from   torch.distributions import Categorical
 
-# This code is commented a bit excessively for normal purposes, but is intended to be
-# an easy introduction to policy gradient optimization in a ML framework. None the less, if you're fairly comfortable
-# with the math behind RL and using PyTorch, a file with less tutorially comments can be found in this directory on git.
+# This version of the code is closer to how I would comment it were it not a for a tutorial.
+# It's more readable, and still explains anything which may appear hacky or arbitrary, but assumes more 
+# familarity with torch and RL.
 
 # This code was initially inspired by Tim Sullivan's (ts1829.github.io) medium tutorial, which
 # can be found here (https://medium.com/@ts1829/policy-gradient-reinforcement-learning-in-pytorch-df1383ea0baf)
@@ -30,8 +30,7 @@ from   torch.distributions import Categorical
 class CategoricalPolicyNetwork(nn.Module):
     """
     A torch neural network which represents a policy gradient policy pi(action | state).
-    The distribution of action probabilities pi(* | state) can be calculated via 
-    PolicyNetwork(observation), which calls the networks forward method.
+    The distribution of action probabilities pi(* | state) can be calculated via PolicyNetwork(observation).
     The network can be updated with the update_policy_weights function, which updates
     the network's weight based on the values of one or more trajectories in the environment.
 
@@ -88,27 +87,19 @@ class CategoricalPolicyNetwork(nn.Module):
         layers = nn.ModuleList()
 
         if len(self.hid_sizes) == 0:
-            # Create a logistic computation graph that outputs probability distributions
-            # This wont perform very well.
+            # Create a logistic computation graph
             layers.append(nn.Sequential(
                 nn.Linear(self.obs_dim, self.act_dim, bias=False),
                 nn.Softmax(dim=-1)
             ))
         else:
-            # Create a multilayer perceptron (neural net) with the inputted hid_sizes
-            # Every layer but the output layer will map vectors of one size to vectors of another
-            # via some linear transformation, regularization via dropout, and then the application of a
-            # nonlinear activation (or transfer) function
-
-            # Create the fully connected input layer, which maps input vectors to hid_sizes[0] sized vectors
+            # Create a multilayer perceptron
             layers.append(nn.Sequential(
                 nn.Linear(self.obs_dim, self.hid_sizes[0], bias=False),
                 nn.Dropout(p=self.dropout),
                 nn.ReLU()
             ))
 
-            # Create intermediate fully connected layers which map hid_size[i-1] sized 
-            # vectors into hid_size[i] sized vectors
             for i in range(1, len(self.hid_sizes) - 1):
                 layers.append(nn.Sequential(
                     nn.Linear(self.hid_sizes[i-1], self.hid_sizes[i], bias=False),
@@ -116,8 +107,6 @@ class CategoricalPolicyNetwork(nn.Module):
                     nn.ReLU()
                 ))
 
-            # Create the output layer, which maps hid_size[-1] vectors into act_dim sized vectors that represent
-            # probability distributions by taking their softmax.
             layers.append(nn.Sequential(
                 nn.Linear(self.hid_sizes[-1], self.act_dim, bias=False),
                 nn.Softmax(dim=-1)
@@ -141,7 +130,6 @@ class CategoricalPolicyNetwork(nn.Module):
         action_probs : torch.Tensor
             The learned probability distribution over actions for the inputted state.
         """
-        # Compute the action probs by running the state vector through each layer of our network.
         action_probs = state
         for layer in self.layers:
             action_probs = layer(action_probs)
@@ -151,17 +139,11 @@ class CategoricalPolicyNetwork(nn.Module):
                     
         return action_probs
 
-    def update_policy_weights(self, batch_action_log_probs: torch.Tensor,
-                                    batch_trajectory_rewards:          List[List[float]]) -> float:
+    def update_policy_weights(self, batch_action_log_probs:   torch.Tensor,
+                                    batch_trajectory_rewards: List[List[float]]) -> float:
         """
         Approximates the gradient of our expected return for our policy network per the reward to go version of
-        (https://spinningup.openai.com/en/latest/spinningup/rl_intro3.html). We do this by using trajectories that 
-        we sampled from our policy (by running it in the environment) to estimate the expected (or average)
-        sum or rewards over the policy network's trajectories. 
-        
-        This implementation doesn't estimate the on policy value function as a baseline, but does normalize 
-        the rewards over all trajectories, which could be thought of as a crude approximation of the on policy 
-        value function via the mean of the rewards that we saw. The performance is truly terrible without this.
+        (https://spinningup.openai.com/en/latest/spinningup/rl_intro3.html).
 
         Parameters
         __________
@@ -183,34 +165,20 @@ class CategoricalPolicyNetwork(nn.Module):
         rewards_to_go = self._discount_rewards_and_normalize(batch_trajectory_rewards, batch_action_log_probs.shape[0])
 
         # Compute log(pi(action | state)) * reward_to_go(action, state, next_state) for each step in the environment
-        # (reward_to_go can depend on the action, state and next_state, but may also just depend on the state e.g. in
-        # cartpole)
         pi_r = torch.mul(batch_action_log_probs, rewards_to_go)
-        # We want to maximize the sum of this quantity, so we define the loss as the negative of it and run gradient
-        # descent on the loss. This minimizes the loss and thus maximizes the expected return.
-        loss = -torch.sum(pi_r, dim=-1)
+        loss = -torch.sum(pi_r, dim=-1) # Create a loss who's minimization maximizes our expected return.
         loss /= len(batch_trajectory_rewards) # Normalize by the number of trajectories
         
-        # Update policy network weights via the standard torch idiosyncrasy
-        # See (https://medium.com/coinmonks/create-a-neural-network-in-pytorch-and-make-your-life-simpler-ec5367895199)
-        # for an overview in a supervised learning setting.
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
 
-        # Return the loss as a float (as opposed to a torch float)
         return loss.data.item()
     
     def _discount_rewards_and_normalize(self, batch_trajectory_rewards: List[List[float]], 
-                                              num_rewards:        int) -> torch.Tensor:
+                                              num_rewards:              int) -> torch.Tensor:
         """
         Internal method for computing and normalizing the discounted sum of rewards to go. 
-        
-        In the case of cartpole with a batch_size of 1, batch_trajectory_rewards = [[1,1,1,...,1]]. We first compute
-        the discounted sum of rewards to go as 
-            `rewards[T-1] = 1, for i in {T-2,...,0}, rewards[i] = 1 + gamma * rewards[i+1]`, 
-        where T is the length of the trajectory. We then subtract the mean of this vector and divide 
-        it by its standard deviation to normalize it.
 
         Parameters
         __________
@@ -234,23 +202,8 @@ class CategoricalPolicyNetwork(nn.Module):
             for step_reward in trajectory[-2::-1]:
                 rewards[ind] = step_reward + self.gamma * rewards[ind + 1]
                 ind -= 1
-        
-        # A slower but more readable version using python lists and explicitly
-        # representing the discounted future reward `gamma * r_t+1 + gamma ** 2 r_t+2 +...`
-        # as a variable.
-        # 
-        # rewards = []
-        # Go backward through trajectories to match the order of batch_action_log_probs
-        # for trajectory in batch_trajectory_rewards[::-1]:
-        #     dfr = 0 # discounted future rewards 
-        #     for reward in trajectory[::-1]:
-        #         dfr = reward + self.gamma * dfr
-        #         rewards.insert(0, dfr)
-        # rewards = torch.FloatTensor(rewards)
 
         # Normalize rewards and add some smallest float value in case std = 0.
-        # This probably wont happen unless all of your rewards are identical (as in cartpole) 
-        # and you set gamma = 0, or all of your rewards are 0.
         return (rewards - rewards.mean()) / (rewards.std() + self.eps)
 
 class PolicyGradientAgent():
@@ -342,21 +295,15 @@ class PolicyGradientAgent():
         action: int
             The action that our agent chose to take in this situation.
         """
-        # Convert state to torch tensor for compatability
         state = torch.from_numpy(state).to(torch.float32)
 
-        # Compute the action probs without having torch's autograd save
-        # gradient information. The causes some (asymptotically negligible) recomputation,
-        # during learning but allows for a clean API for both learning and later acting
-        # without learning.
+        # Compute the action probs without having torch's autograd save gradient information.
         with torch.no_grad():
             action_probs = self.policy_network(state)
         
-        # Use torch's torch.distributions.Categorical() class to sample an action
         action_dist = Categorical(action_probs)
         action = action_dist.sample()
 
-        # Return this action as an int (as opposed to a torch integer)
         return action.data.item()
     
     def remember(self, action: int,
@@ -365,7 +312,7 @@ class PolicyGradientAgent():
                        done:   bool) -> None:
         """
         Stores the information from this step in the environment, and periodically updates the agent's policy
-        network based every batch_size episodes. (Note episode ~ trajectory ~ rollout).
+        network based every batch_size episodes.
 
         Assumes that the action-state-reward tuples provided are sequential steps in some environment between
         each time `agent.remember()` is called with `done = True`.
@@ -382,35 +329,29 @@ class PolicyGradientAgent():
             A flag saying whether or not this was the last action in a trajectory
             This is automatically provided by gym env's `env.step()` function.
         """
-        # Convert state to torch tensor for compatability
         state = torch.from_numpy(state).to(torch.float32)
 
         # Recompute the action probabilities, this time storing grad information
         action_probs = self.policy_network(state)
-        # Compute the log probability of the action which we took, and reshape it from a scalar to a 1D
-        # tensor so we can concat it with the pervious action_log_probs in this trajectory
         action_log_prob = torch.log(action_probs[action]).reshape(1)
+        # reshape moves from a scalar to a 1D tensor so we can concat it with the pervious action_log_probs
 
         if self.batch_action_log_probs is None:
             self.batch_action_log_probs = action_log_prob
         else:
             self.batch_action_log_probs = torch.cat([self.batch_action_log_probs, action_log_prob]) 
-
-        # If this is the start of a new trajectory in this batch        
+    
         if self.new_trajectory:
-            # append a new array to the batch_trajectory_rewards to keep track of 
-            # the next trajectory's rewards
+            # append a new array to the batch_trajectory_rewards to keep track of the next trajectory's rewards
             self.batch_trajectory_rewards.append([])
             self.new_trajectory = False
             
         # Append step reward to current trajectory's rewards
         self.batch_trajectory_rewards[-1].append(reward)
         
-        # If this is the end of the current trajectory
         if done:
             self.trajectory_count += 1
             self.new_trajectory = True
-            # Keep track of the total rewards for each episode
             self.reward_history.append(np.sum(self.batch_trajectory_rewards[-1]))
 
             # Perform a gradient update on our policy network if we've collected batch_size trajectories
@@ -421,10 +362,8 @@ class PolicyGradientAgent():
         """
         Internal method for telling the policy network to update its weights, and resetting some internal variables.
         """
-        # Tell the policy network to update its weights with the sampled trajectories
         loss = self.policy_network.update_policy_weights(self.batch_action_log_probs, self.batch_trajectory_rewards)
 
-        # Store the loss for debuging
         self.loss_history.append(loss)
 
         # Clear variables for the next batch
