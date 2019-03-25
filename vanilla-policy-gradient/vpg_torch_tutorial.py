@@ -70,7 +70,7 @@ class CategoricalPolicyNetwork(nn.Module):
         self.dropout  = dropout
         
         # Util
-        self.eps = 1e-7 # some small value to prevent div by 0
+        self.eps = np.finfo(float).eps # some small value to prevent div by 0
 
         # Network Parameters
         self.layers = self._build_policy_network()
@@ -157,7 +157,12 @@ class CategoricalPolicyNetwork(nn.Module):
         Approximates the gradient of our expected return for our policy network per the reward to go version of
         (https://spinningup.openai.com/en/latest/spinningup/rl_intro3.html). We do this by using trajectories that 
         we sampled from our policy (by running it in the environment) to estimate the expected (or average)
-        sum or rewards over the policy network's trajectories. 
+        sum or rewards over the policy network's trajectories.
+
+        This is the method which makes this class a policy network. I would recommend looking closely at the link
+        above and understanding why `pi_r` and the `loss` below compute the (negative) expected return before we take 
+        its gradient. The beauty of using an autodifferentiation library (like PyTorch or Tensorflow) is that as 
+        soon as we specify this loss, improving our policy is taken care of for us.
         
         This implementation doesn't estimate the on policy value function as a baseline, but does normalize 
         the rewards over all trajectories, which could be thought of as a crude approximation of the on policy 
@@ -194,6 +199,11 @@ class CategoricalPolicyNetwork(nn.Module):
         # Update policy network weights via the standard torch idiosyncrasy
         # See (https://medium.com/coinmonks/create-a-neural-network-in-pytorch-and-make-your-life-simpler-ec5367895199)
         # for an overview in a supervised learning setting.
+        # 
+        # Essentially, now that we have provided a loss that we want to minimize (because doing so will maximize our
+        # expected return), calling loss.backward() will compute the gradient (derivative) of our policy function
+        # with respect to its inputs, and move its weights in the direction that decreases our loss (and increase 
+        # our expected return).
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()

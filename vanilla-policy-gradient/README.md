@@ -1,25 +1,26 @@
 # Vanilla Policy Gradient Optimization in PyTorch
 ## An implementation focused tutorial
 
+I decided to make this tutorial because, while there are a plethora of detailed guides on the mathematics behind reinforcement learning, and a number of different implementations, I couldn't find any guides that really focused on the details of implementing them. So I created my own implementation of a policy gradient agent while trying to make my code as easy to understand as I possibly could.
+
+Before reading the tutorial, or perhaps concurrently to, I would recommend reading over these three articles from [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html):
+- [Key Concepts in RL](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html)
+- [Kinds of RL Algorithms](https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html)
+- [Intro to Policy Optimization](https://spinningup.openai.com/en/latest/spinningup/rl_intro3.html)
+
+The most important section to understand is `CategoricalPolicyAgent.update_policy_weights`, which spans lines 154 to 212 in `vpg_torch_tutorial.py`. This is where the policy gradient is calculated, and I provide some direction for understanding how it is calculated in the way that it is.
+
 I decided to split the code up into two files:
 
 `vpg_torch_tutorial.py`: This code is commented a bit excessively for normal purposes, but is intended to be an easy introduction to policy gradient optimization in a ML framework.
 
 `vpg_torch_tutorial_sparse.py`: This version of the code is closer to how I would comment it were it not a for a tutorial. It's more readable, and still explains anything which may appear hacky or arbitrary, but assumes more familarity with torch and RL.
 
-This code was initially inspired by [Tim Sullivan](ts1829.github.io)'s medium tutorial, which can be found [here](https://medium.com/@ts1829/policy-gradient-reinforcement-learning-in-pytorch-df1383ea0baf).
-
-Other resources which I've found helpful, or think may be helpful for the reader are sprinkled throughout. 
-
-The most notable resource however, which deserves mentioning up front, is [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html), which contains a through introduction to reinforcement learning concepts and its mathematical objcts. They also provide performant tensorflow implementations of several reinforcement learning algorithms, however as the code is written in `tensorflow version 1`, it is not the most interpretable for beginners. Which is why I created this tutorial.
-
-Author: Phoenix Meadowlark
-
 ## The class APIs
 
 I decided to represent the algorithm by two classes: a `PolicyGradientAgent`, and a `CategoricalPolicyNetwork`. To use the algorithm, one only needs to interact with the `PolicyGradientAgent` class as the `CategoricalPolicyNetwork` is handled by the agent.
 
-The `PolicyGradientAgent` is initalized with with the enviroment state and action sizes, along with optional hyperparameters. Learning is performed in a loop with the enviroment by asking the agent to act at each step via `agent.act(state)`, and storing the results of that action via `agent.remember(action, state, reward, done)`. After training, (or before if you like), you can have the agent act without learning by simply calling `agent.act` without calling `agent.remember`.
+The `PolicyGradientAgent` is initialized with with the environment state and action sizes, along with optional hyperparameters. Learning is performed in a loop with the environment by asking the agent to act at each step via `agent.act(state)`, and storing the results of that action via `agent.remember(action, state, reward, done)`. After training, (or before if you like), you can have the agent act without learning by simply calling `agent.act` without calling `agent.remember`.
 
 A simple training loop will look something like
 ```Python
@@ -45,9 +46,9 @@ for ep in episodes:
 
 ## Example Training Loop with CartPole-v* and LunarLander-v2
 
-Note that RL methods are pretty suseptible to initial conditions and divergence.
+Note that RL methods are pretty susceptible to initial conditions and divergence.
 
-A Colab hosted notebook containing this implementation and code for training it on a few gym enviroments can be found [here](https://colab.research.google.com/drive/1-o9W05S8a3atS97clhEcu_lmhmLMNpVf)! Just open it and run in playground mode.
+A Colab hosted notebook containing this implementation and code for training it on a few gym environments can be found [here](https://colab.research.google.com/drive/1-o9W05S8a3atS97clhEcu_lmhmLMNpVf)! Just open it and run in playground mode.
 
 Imports:
 ```Python
@@ -150,3 +151,13 @@ if log_scale:
 fig.tight_layout()
 plt.show()
 ```
+
+## Credits
+
+This code was initially inspired by [Tim Sullivan](ts1829.github.io)'s medium tutorial, which can be found [here](https://medium.com/@ts1829/policy-gradient-reinforcement-learning-in-pytorch-df1383ea0baf).
+
+Other resources which I've found helpful, or think may be helpful for the reader are sprinkled throughout. 
+
+The most notable resource however, which deserves mentioning up front, is [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html), which contains a through introduction to reinforcement learning concepts and its mathematical objects. They also provide preferment tensorflow implementations of several reinforcement learning algorithms, however as the code is written in `tensorflow version 1`, it is not the most interpretable for beginners. Which is why I created this tutorial.
+
+Author: Phoenix Meadowlark
