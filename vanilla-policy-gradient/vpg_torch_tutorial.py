@@ -29,11 +29,12 @@ from   torch.distributions import Categorical
 
 class CategoricalPolicyNetwork(nn.Module):
     """
-    A torch neural network which represents a policy gradient policy pi(action | state).
+    A torch neural network which represents a reinforcement learning policy pi(action | state).
     The distribution of action probabilities pi(* | state) can be calculated via 
-    PolicyNetwork(observation), which calls the networks forward method.
+    PolicyNetwork(observation), which calls the network's forward method.
+    
     The network can be updated with the update_policy_weights function, which updates
-    the network's weight based on the values of one or more trajectories in the environment.
+    the network's weight based on the values of one or more trajectories sampled in the environment.
 
     Parameters
     ----------
