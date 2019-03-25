@@ -158,6 +158,4 @@ This code was initially inspired by [Tim Sullivan](ts1829.github.io)'s medium tu
 
 Other resources which I've found helpful, or think may be helpful for the reader are sprinkled throughout. 
 
-The most notable resource however, which deserves mentioning up front, is [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html), which contains a through introduction to reinforcement learning concepts and its mathematical objects. They also provide preferment tensorflow implementations of several reinforcement learning algorithms, however as the code is written in `tensorflow version 1`, it is not the most interpretable for beginners. Which is why I created this tutorial.
-
 Author: Phoenix Meadowlark
