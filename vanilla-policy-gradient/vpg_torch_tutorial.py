@@ -203,7 +203,7 @@ class CategoricalPolicyNetwork(nn.Module):
         # 
         # Essentially, now that we have provided a loss that we want to minimize (because doing so will maximize our
         # expected return), calling loss.backward() will compute the gradient (derivative) of our policy function
-        # with respect to its inputs, and move its weights in the direction that decreases our loss (and increase 
+        # with respect to its inputs, and move its weights in the direction that decreases our loss (and increases 
         # our expected return).
         self.optimizer.zero_grad()
         loss.backward()
