@@ -42,3 +42,111 @@ for ep in episodes:
         action = agent.act(state)
         state, reward, done, info = env.step(action)
 ```
+
+## Example Training Loop with CartPole-v* and LunarLander-v2
+
+Note that RL methods are pretty suseptible to initial conditions and divergence.
+
+A Colab hosted notebook containing this implementation and code for training it on a few gym enviroments can be found [here](https://colab.research.google.com/drive/1-o9W05S8a3atS97clhEcu_lmhmLMNpVf)! Just open it and run in playground mode.
+
+Imports:
+```Python
+import sys
+import gym
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# if you're using Google Colab
+# !pip install box2d-py
+# !pip install gym[Box_2D]
+
+plt.style.use('ggplot')
+
+# Useful env for seeing more asymptotic behaviour
+cap = 2000
+threshold = 1000
+gym.envs.register(
+    id='CartPole-v2',
+    entry_point='gym.envs.classic_control:CartPoleEnv',
+    tags={'wrapper_config.TimeLimit.max_episode_steps': cap},
+    reward_threshold=threshold,
+)
+```
+
+Training Loop:
+```Python
+def train(env, agent, episodes, window):
+    reward_buffer = []
+    for episode in range(episodes):
+        state = env.reset()
+        done = False       
+        while not done:
+            action = agent.act(state)
+            next_state, reward, done, _ = env.step(action)
+            agent.remember(action, state, reward, done)
+            state = next_state
+        
+        episode_reward = int(agent.reward_history[-1])
+        
+        if len(reward_buffer) > window:
+            del reward_buffer[0]
+        reward_buffer.append(episode_reward)
+        
+        moving_ave = np.average(reward_buffer)
+
+        sys.stdout.write('\r' + 'Episode {:4d} Last Reward: {:5d} Moving Average: {:7.2f}'
+                                .format(episode, episode_reward, moving_ave))
+        sys.stdout.flush()
+
+        if env.spec.reward_threshold is not None and moving_ave > env.spec.reward_threshold:
+            print("\nSolved! Moving average is now {:.2f}.".format(moving_ave, episode_reward))
+            break
+```
+
+Choose env and run training:
+```Python
+envs = ['CartPole-v0', 'CartPole-v1', 'CartPole-v2', 'LunarLander-v2']
+env_ind = 1
+
+env = gym.make(envs[env_ind])
+env_obs_dim = env.observation_space.shape[0]
+env_act_dim = env.action_space.n
+
+max_episodes = 2000
+moving_average_window = 50
+
+print('Training PGA on {}'.format(envs[env_ind]))
+agent = PolicyGradientAgent(env_obs_dim, env_act_dim)
+train(env, agent, max_episodes, moving_average_window)
+```
+
+Plot Results
+```Python
+window = moving_average_window
+fig, ((ax1), (ax2)) = plt.subplots(2, 1, sharey=True, figsize=[12,12])
+
+rolling_mean = pd.Series(agent.reward_history).rolling(window).mean()
+std          = pd.Series(agent.reward_history).rolling(window).std()
+
+ax1.plot(rolling_mean)
+ax1.fill_between(range(len(agent.reward_history)),rolling_mean-std, rolling_mean+std, alpha=0.2)
+
+ax1.set_title('Episode Rewards Moving Average ({}-episode window)'.format(window))
+ax1.set_xlabel('Episode')
+ax1.set_ylabel('Episode Reward')
+
+ax2.scatter(np.arange(len(agent.reward_history)), agent.reward_history, alpha=0.5)
+
+ax2.set_title('Episode Rewards')
+ax2.set_xlabel('Episode')
+ax2.set_ylabel('Episode Reward')
+
+# Useful for some envs, which are learned exponentially with number of episodes
+log_scale = False
+if log_scale:
+    ax2.set_yscale('log')
+
+fig.tight_layout()
+plt.show()
+```
