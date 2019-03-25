@@ -3,7 +3,7 @@
 
 I decided to make this tutorial because, while there are a plethora of detailed guides on the mathematics behind reinforcement learning, and a number of different implementations, I couldn't find any guides that really focused on the details of implementing them. So I created my own implementation of a policy gradient agent while trying to make my code as easy to understand as I possibly could.
 
-Before reading the tutorial, or perhaps concurrently to, I would recommend reading over these three articles from [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html):
+Before reading the tutorial, or perhaps concurrently to reading it, I would recommend reading over these three articles from [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html):
 - [Key Concepts in RL](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html)
 - [Kinds of RL Algorithms](https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html)
 - [Intro to Policy Optimization](https://spinningup.openai.com/en/latest/spinningup/rl_intro3.html)
