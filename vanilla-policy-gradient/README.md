@@ -1,16 +1,14 @@
 # Vanilla Policy Gradient Optimization in PyTorch
 ## An implementation focused tutorial
 
-I decided to make this tutorial because, while there are a plethora of detailed guides on the mathematics behind reinforcement learning, and a number of different implementations, I couldn't find any guides that really focused on the details of implementing them. So I created my own implementation of a policy gradient agent while trying to make my code as easy to understand as I possibly could.
+I decided to make this tutorial because, while there are a plethora of detailed guides on the mathematics behind reinforcement learning, and a number of different implementations, I couldn't find any guides that really focused on the details of implementing them. So I created my own implementation of a policy gradient agent while trying to make my code as easy to understand as I possibly could. 
+
+What I was most concerned about elucidating is the the process of calculating the policy gradient and using it to update a neural net's weights. This process is incredibly transparent PyTorch with its eager execution and the ease of building modular, classed code with it. The most important section to understand is `CategoricalPolicyAgent.update_policy_weights`, which spans lines 154 to 212 in `vpg_torch_tutorial.py`. This is where the policy gradient is calculated, and I provide some direction for understanding how it is calculated in the way that it is.
 
 Before reading the tutorial, or perhaps concurrently to reading it, I would recommend reading over these three articles from [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html):
 - [Key Concepts in RL](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html)
 - [Kinds of RL Algorithms](https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html)
 - [Intro to Policy Optimization](https://spinningup.openai.com/en/latest/spinningup/rl_intro3.html)
-
-The most important section to understand is `CategoricalPolicyAgent.update_policy_weights`, which spans lines 154 to 212 in `vpg_torch_tutorial.py`. This is where the policy gradient is calculated, and I provide some direction for understanding how it is calculated in the way that it is.
-
-I decided to split the code up into two files:
 
 `vpg_torch_tutorial.py`: This code is commented a bit excessively for normal purposes, but is intended to be an easy introduction to policy gradient optimization in a ML framework.
 
