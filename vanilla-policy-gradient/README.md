@@ -7,10 +7,12 @@ What I was most concerned about elucidating is the the process of calculating th
 
 As such, the most important section to understand is `CategoricalPolicyAgent.update_policy_weights`, which spans lines 154 to 212 in `vpg_torch_tutorial.py`. This is where the policy gradient is calculated, and I provide some direction for understanding how it is calculated in the way that it is.
 
-Before reading the tutorial, or perhaps concurrently to reading it, I would recommend reading over these three articles from [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html):
+Currently, the code file `vpg_torch_tutorial.py` is the tutorial itself. It is commented with that in mind, and contains some links to other resources which explain things more broadly. Before reading the code, or perhaps concurrently to reading it, I would recommend reading over these three articles from [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html):
 - [Key Concepts in RL](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html)
 - [Kinds of RL Algorithms](https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html)
 - [Intro to Policy Optimization](https://spinningup.openai.com/en/latest/spinningup/rl_intro3.html)
+
+I'll likely pull out the most relevant bits into a medium article, or make a youtube video walking through the code in the future, but I hope that some find if useful as it is now! I'll give a brief overview of the classes and how to use them in a training loop below.
 
 ## The class APIs
 
