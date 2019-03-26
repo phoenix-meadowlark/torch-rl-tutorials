@@ -9,9 +9,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from   torch.distributions import Categorical
 
-# This code is commented a bit excessively for normal purposes, but is intended to be
-# an easy introduction to policy gradient optimization in a ML framework. None the less, if you're fairly comfortable
-# with the math behind RL and using PyTorch, a file with less tutorially comments can be found in this directory on git.
+# This code is intended to be an easy introduction to policy gradient optimization in a ML framework.
 
 # This code was initially inspired by Tim Sullivan's (ts1829.github.io) medium tutorial, which
 # can be found here (https://medium.com/@ts1829/policy-gradient-reinforcement-learning-in-pytorch-df1383ea0baf)
@@ -25,7 +23,8 @@ from   torch.distributions import Categorical
 # for beginners. Which is why I created this tutorial.
 
 # Author:  Phoenix Meadowlark
-# Website: phoenix-meadowlark.github.io
+# Project: https://github.com/phoenix-meadowlark/torch-rl-tutorials/tree/master/vanilla-policy-gradient
+# Website: https://phoenix-meadowlark.github.io
 
 class CategoricalPolicyNetwork(nn.Module):
     """
