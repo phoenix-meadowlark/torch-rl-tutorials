@@ -80,7 +80,7 @@ def train(env, agent, episodes, window):
     # Keeps track of the `window` most recent rewards
     reward_buffer = []
     for episode in range(episodes):
-        # Resets enviroment, which also provides the inital state
+        # Resets environment, which also provides the initial state
         state = env.reset()
         
         done = False       
@@ -88,7 +88,7 @@ def train(env, agent, episodes, window):
             # Have our agent choose and action
             action = agent.act(state)
             
-            # Have the enviroment react to that action
+            # Have the environment react to that action
             # and give us a reward
             # 
             # If the game is over, then it will set 
@@ -112,7 +112,7 @@ def train(env, agent, episodes, window):
         sys.stdout.flush()
 
         if env.spec.reward_threshold is not None and moving_ave > env.spec.reward_threshold:
-            print("\nThe enviroment was solved, with a moving average reward of {:7.2f}!.".format(moving_ave, episode_reward))
+            print("\nThe environment was solved, with a moving average reward of {:7.2f}!.".format(moving_ave, episode_reward))
             break
 ```
 
@@ -129,7 +129,7 @@ env = gym.make(envs[env_ind])
 env_obs_dim = env.observation_space.shape[0]
 env_act_dim = env.action_space.n
 
-# Initalize our agent to the default hyperparameters
+# Initialize our agent to the default hyperparameters
 agent = PolicyGradientAgent(
     obs_dim = env_obs_dim,
     act_dim = env_act_dim,
@@ -141,8 +141,8 @@ agent = PolicyGradientAgent(
     l2_weight  = 0,
 )
 
-# Controls the limit for how long our agent has to solve the enviroment
-# and how confident we are that it performes that well
+# Controls the limit for how long our agent has to solve the environment
+# and how confident we are that it performs that well
 max_episodes = 2000
 moving_average_window = 50
 
