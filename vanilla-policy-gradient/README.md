@@ -108,11 +108,13 @@ def train(env, agent, episodes, window):
         
         moving_ave = np.average(reward_buffer)
 
-        sys.stdout.write('\r' + 'Episode {:4d} Last Reward: {:5d} Moving Average: {:7.2f}'.format(episode, episode_reward, moving_ave))
+        sys.stdout.write('\r' + 'Episode {:4d} Last Reward: {:5d} Moving Average: {:7.2f}'
+                                .format(episode, episode_reward, moving_ave))
         sys.stdout.flush()
 
         if env.spec.reward_threshold is not None and moving_ave > env.spec.reward_threshold:
-            print("\nThe environment was solved, with a moving average reward of {:7.2f}!.".format(moving_ave, episode_reward))
+            print("\nThe environment was solved, with a moving average reward of {:7.2f}!."
+                  .format(moving_ave, episode_reward))
             break
 ```
 
