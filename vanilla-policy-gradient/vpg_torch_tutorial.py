@@ -316,9 +316,9 @@ class PolicyGradientAgent():
                        hid_sizes:  List[int] = [128],
                        batch_size: int   = 1,
                        gamma:      float = 0.99,
-                       lr:         float = 5e-3,
-                       dropout:    float = 0.6,
-                       l2_weight:  float = 1e-2) -> None:
+                       lr:         float = 1e-2,
+                       dropout:    float = 0.5,
+                       l2_weight:  float = 0) -> None:
         # Env Info
         self.obs_dim = obs_dim
         self.act_dim = act_dim

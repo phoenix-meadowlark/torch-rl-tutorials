@@ -58,15 +58,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# if you're using Google Colab
-# !pip install box2d-py
-# !pip install gym[Box_2D]
+!pip install box2d-py
+!pip install gym[Box_2D]
 
 plt.style.use('ggplot')
 
 # Useful env for seeing more asymptotic behaviour
 cap = 2000
-threshold = 1000
+threshold = int(0.95 * cap)
 gym.envs.register(
     id='CartPole-v2',
     entry_point='gym.envs.classic_control:CartPoleEnv',
@@ -78,15 +77,28 @@ gym.envs.register(
 Training Loop:
 ```Python
 def train(env, agent, episodes, window):
+    # Keeps track of the `window` most recent rewards
     reward_buffer = []
     for episode in range(episodes):
+        # Resets enviroment, which also provides the inital state
         state = env.reset()
+        
         done = False       
         while not done:
+            # Have our agent choose and action
             action = agent.act(state)
-            next_state, reward, done, _ = env.step(action)
-            agent.remember(action, state, reward, done)
-            state = next_state
+            
+            # Have the enviroment react to that action
+            # and give us a reward
+            # 
+            # If the game is over, then it will set 
+            # `done` to `True`
+            state, reward, done, _ = env.step(action)
+            
+            # Have our agent remember the reward the action
+            # gave, and implicitly update it's policy
+            # if it has collected `batch_size` trajectories
+            agent.remember(reward, done)
         
         episode_reward = int(agent.reward_history[-1])
         
@@ -96,29 +108,45 @@ def train(env, agent, episodes, window):
         
         moving_ave = np.average(reward_buffer)
 
-        sys.stdout.write('\r' + 'Episode {:4d} Last Reward: {:5d} Moving Average: {:7.2f}'
-                                .format(episode, episode_reward, moving_ave))
+        sys.stdout.write('\r' + 'Episode {:4d} Last Reward: {:5d} Moving Average: {:7.2f}'.format(episode, episode_reward, moving_ave))
         sys.stdout.flush()
 
         if env.spec.reward_threshold is not None and moving_ave > env.spec.reward_threshold:
-            print("\nSolved! Moving average is now {:.2f}.".format(moving_ave, episode_reward))
+            print("\nThe enviroment was solved, with a moving average reward of {:7.2f}!.".format(moving_ave, episode_reward))
             break
 ```
 
 Choose env and run training:
 ```Python
+# A few envs to choose from
 envs = ['CartPole-v0', 'CartPole-v1', 'CartPole-v2', 'LunarLander-v2']
-env_ind = 1
+env_ind = 2
 
+print('Training PGA on {}'.format(envs[env_ind]))
+
+# Create Env and get the dimensions of the action and observation spaces
 env = gym.make(envs[env_ind])
 env_obs_dim = env.observation_space.shape[0]
 env_act_dim = env.action_space.n
 
+# Initalize our agent to the default hyperparameters
+agent = PolicyGradientAgent(
+    obs_dim = env_obs_dim,
+    act_dim = env_act_dim,
+    hid_sizes  = [128],
+    batch_size = 1,
+    gamma      = 0.99, 
+    lr         = 1e-2,
+    dropout    = 0.5,
+    l2_weight  = 0,
+)
+
+# Controls the limit for how long our agent has to solve the enviroment
+# and how confident we are that it performes that well
 max_episodes = 2000
 moving_average_window = 50
 
-print('Training PGA on {}'.format(envs[env_ind]))
-agent = PolicyGradientAgent(env_obs_dim, env_act_dim)
+# Trains our agent with all of the above settings
 train(env, agent, max_episodes, moving_average_window)
 ```
 
@@ -154,7 +182,7 @@ plt.show()
 
 ## Credits
 
-This code was initially inspired by [Tim Sullivan](ts1829.github.io)'s medium tutorial, which can be found [here](https://medium.com/@ts1829/policy-gradient-reinforcement-learning-in-pytorch-df1383ea0baf).
+This code was initially inspired by [Tim Sullivan](https://ts1829.github.io)'s medium tutorial, which can be found [here](https://medium.com/@ts1829/policy-gradient-reinforcement-learning-in-pytorch-df1383ea0baf).
 
 Other resources which I've found helpful, or think may be helpful for the reader are sprinkled throughout. 
 
