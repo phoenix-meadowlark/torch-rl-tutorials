@@ -16,7 +16,7 @@ I'll likely pull out the most relevant bits into a medium article, or make a you
 
 ## The class APIs
 
-I decided to represent the algorithm by two classes: a `PolicyGradientAgent`, and a `CategoricalPolicyNetwork`. To use the algorithm, one only needs to interact with the `PolicyGradientAgent` class as the `CategoricalPolicyNetwork` is handled by the agent.
+I decided to represent the algorithm by two classes: a `PolicyGradientAgent`, and a `CategoricalPolicyNetwork`. To use the algorithm, one only needs to interact with the `PolicyGradientAgent` class as the `CategoricalPolicyNetwork` is handled by the agent. Understanding both is necessary for understanding how policy gradient optimization is implemented however.
 
 The `PolicyGradientAgent` is initialized with with the environment state and action sizes, along with optional hyperparameters. Learning is performed in a loop with the environment by asking the agent to act at each step via `agent.act(state)`, and storing the results of that action via `agent.remember(action, state, reward, done)`. After training, (or before if you like), you can have the agent act without learning by simply calling `agent.act` without calling `agent.remember`.
 
@@ -41,6 +41,8 @@ for ep in episodes:
         action = agent.act(state)
         state, reward, done, info = env.step(action)
 ```
+
+
 
 ## Example Training Loop with CartPole-v* and LunarLander-v2
 
