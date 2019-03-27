@@ -111,9 +111,9 @@ class CategoricalPolicyNetwork(nn.Module):
 
             # Create intermediate fully connected layers which map hid_size[i-1] sized 
             # vectors into hid_size[i] sized vectors
-            for i in range(1, len(self.hid_sizes) - 1):
+            for i in range(0, len(self.hid_sizes) - 1):
                 layers.append(nn.Sequential(
-                    nn.Linear(self.hid_sizes[i-1], self.hid_sizes[i], bias=False),
+                    nn.Linear(self.hid_sizes[i], self.hid_sizes[i + 1], bias=False),
                     nn.Dropout(p=self.dropout),
                     nn.ReLU()
                 ))
@@ -196,7 +196,8 @@ class CategoricalPolicyNetwork(nn.Module):
         # We want to maximize the sum of this quantity, so we define the loss as the negative of it and run gradient
         # descent on the loss. This minimizes the loss and thus maximizes the expected return.
         loss = -torch.sum(pi_r, dim=-1)
-        loss /= len(batch_trajectory_rewards) # Normalize by the number of trajectories
+        # Normalize by the number of steps taken in the environment to compute the expectation
+        loss /= rewards_to_go.shape[0]
         
         # Update policy network weights via the standard torch idiosyncrasy
         # See (https://medium.com/coinmonks/create-a-neural-network-in-pytorch-and-make-your-life-simpler-ec5367895199)
@@ -288,7 +289,7 @@ class PolicyGradientAgent():
             agent.remember(action, state, reward, done)
             state = next_state
 
-    To make the agent act without learning, simply call `agent.act(state)` without later calling `agent.remember()`.
+    To make the agent act without learning, call `agent.act(state, learn=False)` without later calling `agent.remember()`.
 
     Parameters
     ----------
@@ -316,7 +317,7 @@ class PolicyGradientAgent():
                        hid_sizes:  List[int] = [128],
                        batch_size: int   = 1,
                        gamma:      float = 0.99,
-                       lr:         float = 1e-2,
+                       lr:         float = 5e-2,
                        dropout:    float = 0.5,
                        l2_weight:  float = 0) -> None:
         # Env Info
@@ -353,6 +354,8 @@ class PolicyGradientAgent():
         __________
         state: numpy.array, required
             The state that the environment is in during this step.
+        learn: bool
+            Whether or not the agent will learn from this action.
 
         Returns
         _______
