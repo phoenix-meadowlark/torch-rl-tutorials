@@ -38,7 +38,7 @@ for ep in episodes:
     state = env.reset()
     done = False
     while not done:
-        action = agent.act(state)
+        action = agent.act(state, learn=False)
         state, reward, done, info = env.step(action)
 ```
 
