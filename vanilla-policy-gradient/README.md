@@ -89,7 +89,7 @@ def train(env, agent, episodes, window):
             action = agent.act(state)
             
             # Have the environment react to that action
-            # and give us a reward
+            # and give us a reward and the next state
             # 
             # If the game is over, then it will set 
             # `done` to `True`
