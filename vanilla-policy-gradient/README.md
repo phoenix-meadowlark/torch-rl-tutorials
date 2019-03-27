@@ -14,6 +14,8 @@ Currently, the code file `vpg_torch_tutorial.py` is the tutorial itself. It is c
 
 I'll likely pull out the most relevant bits into a medium article, or make a youtube video walking through the code in the future, but I hope that some find if useful as it is now! I'll give a brief overview of the classes and how to use them in a training loop below.
 
+A Colab hosted notebook containing this implementation and code for training it on a few gym environments can be found [here](https://colab.research.google.com/drive/1-o9W05S8a3atS97clhEcu_lmhmLMNpVf)! Just open it and run in playground mode. It's good to play with a few hyperparameters and run the algorithm a few times to understand how it behaves.
+
 ## The class APIs
 
 I decided to represent the algorithm by two classes: a `PolicyGradientAgent`, and a `CategoricalPolicyNetwork`. To use the algorithm, one only needs to interact with the `PolicyGradientAgent` class as the `CategoricalPolicyNetwork` is handled by the agent. Understanding both is necessary for understanding how policy gradient optimization is implemented however.
@@ -44,10 +46,6 @@ for ep in episodes:
 
 
 ## Example Training Loop with CartPole-v* and LunarLander-v2
-
-Note that RL methods are pretty susceptible to initial conditions and divergence.
-
-A Colab hosted notebook containing this implementation and code for training it on a few gym environments can be found [here](https://colab.research.google.com/drive/1-o9W05S8a3atS97clhEcu_lmhmLMNpVf)! Just open it and run in playground mode.
 
 Imports:
 ```Python
