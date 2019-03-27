@@ -27,9 +27,8 @@ for ep in episodes:
     done = False
     while not done:
         action = agent.act(state)
-        next_state, reward, done, info = env.step(action)
-        agent.remember(action, state, reward, done)
-        state = next_state
+        state, reward, done, info = env.step(action)
+        agent.remember(reward, done)
 ```
 
 While testing the agent at a fixed state would look something like
