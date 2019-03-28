@@ -5,7 +5,7 @@ I decided to make this tutorial because, while there are a plethora of detailed 
 
 What I was most concerned about elucidating is the the process of calculating the policy gradient and using it to update a neural net's weights. This process is incredibly transparent PyTorch with its eager execution and the ease of building modular, classed code with it. 
 
-As such, the most important section to understand is `CategoricalPolicyAgent.update_policy_weights`, which spans lines 154 to 212 in `vpg_torch_tutorial.py`. This is where the policy gradient is calculated, and I provide some direction for understanding how it is calculated in the way that it is.
+As such, the most important section to understand is `CategoricalPolicyAgent.update_policy_weights`, which spans lines 156 to 212 in `vpg_torch_tutorial.py`. This is where the policy gradient is calculated, and I provide some direction for understanding how it is calculated in the way that it is.
 
 Currently, the code file `vpg_torch_tutorial.py` is the tutorial itself. It is commented with that in mind, and contains some links to other resources which explain things more broadly. Before reading the code, or perhaps concurrently to reading it, I would recommend reading over these three articles from [Spinning Up in Deep RL](https://spinningup.openai.com/en/latest/index.html):
 - [Key Concepts in RL](https://spinningup.openai.com/en/latest/spinningup/rl_intro.html)
